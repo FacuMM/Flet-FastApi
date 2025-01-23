@@ -1,0 +1,6 @@
+flet
+fastapi
+uvicorn[standard]   
+requests           
+sqlalchemy    
+sqlite3      
