@@ -9,7 +9,7 @@ app.include_router(users.router)
 
 @app.get("/")
 def home():
-    return {"message": "Bienvenido a la API"}
+    return {"message": "Bienvenido a la API Cristiano Muñaldo, Esta es la api, pero es temporal si se deja de navegar en el server, por eso necesitamos postegresql"}
 
 # Punto de entrada
 if __name__ == "__main__":
