@@ -1,6 +1,5 @@
-flet
 fastapi
 uvicorn
-requests           
-sqlalchemy    
-    
+sqlite3
+pydantic
+requests
