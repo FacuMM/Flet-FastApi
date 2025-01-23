@@ -1,17 +1,42 @@
-from fastapi import FastAPI
-from backend.routers import users
-from backend import *
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import sqlite3
 
 app = FastAPI()
 
-# Registrar rutas
-app.include_router(users.router)
+# Modelo para los datos de usuario
+class User(BaseModel):
+    email: str
+    password: str
 
-@app.get("/")
-def home():
-    return {"message": "Bienvenido a la API Cristiano Muñaldo, Esta es la api, pero es temporal si se deja de navegar en el server, por eso necesitamos postegresql"}
+# Función para conectar a la base de datos
+def get_db_connection():
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+    return conn
 
-# Punto de entrada
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+# Ruta para login
+@app.post("/login")
+async def login(user: User):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE email = ? AND password = ?", (user.email, user.password))
+    row = cur.fetchone()
+    conn.close()
+    if row:
+        return {"message": "Login exitoso"}
+    raise HTTPException(status_code=400, detail="Credenciales incorrectas")
+
+# Ruta para registrar usuario
+@app.post("/register")
+async def register(user: User):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("INSERT INTO users (email, password) VALUES (?, ?)", (user.email, user.password))
+        conn.commit()
+        return {"message": "Usuario registrado exitosamente"}
+    except:
+        raise HTTPException(status_code=400, detail="Error al registrar")
+    finally:
+        conn.close()
